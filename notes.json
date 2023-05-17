@@ -1,0 +1,82 @@
+PUT _index_template/products
+{
+  "index_patterns": [
+    "products-2023-05-*"
+  ],
+  "template": {
+    "aliases": {
+      "my_logs": {}
+    },
+    "settings": {
+      "number_of_shards": 2,
+      "number_of_replicas": 1
+    },
+    "mappings": {
+      "properties": {
+        "name": {
+          "type": "text"
+        },
+        "quantity": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}
+
+POST products/_doc
+{
+  "name": "iPhone 52",
+  "quantity": 10
+}
+
+GET products/_search
+{
+  "query": {
+    "match": {
+      "name": "iPhone"
+    }
+  }
+}
+
+GET _search
+{
+  "query": {
+    "multi_match": {
+      "query": "iphone",
+      "fields": ["name^2", "model"]
+    }
+  },
+  "sort": [
+    {
+      "_score": {
+        "order": "desc"
+      }
+    },
+    {
+      "quantity": {
+        "order": "asc"
+      }
+    }
+  ]
+}
+
+POST products/_delete_by_query
+{
+  "query": {
+    "match": {
+      "name": "iPhone"
+    }
+  }
+}
+
+PUT products
+{
+  "mappings": {
+    "properties": {
+      "quantity": {
+        "type": "integer"
+      }
+    }
+  }
+}
